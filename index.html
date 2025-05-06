@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Database</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+
+        header {
+            background-color: #333;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+        }
+
+        .container {
+            width: 80%;
+            margin: 20px auto;
+        }
+
+        .form-container {
+            background-color: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #333;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #555;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: #333;
+            color: white;
+        }
+
+        .delete-button {
+            background-color: #e74c3c;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .delete-button:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Movie Database</h1>
+    </header>
+    <div class="container">
+        <!-- Add Movie Form -->
+        <div class="form-container">
+            <h2>Add New Movie</h2>
+            <form id="add-movie-form">
+                <input type="text" id="movie_title" placeholder="Movie Title" required>
+                <input type="number" id="release_year" placeholder="Release Year" required>
+                <input type="text" id="genre" placeholder="Genre" required>
+                <input type="text" id="director" placeholder="Director" required>
+                <input type="number" id="box_office_earnings" placeholder="Box Office Earnings" required>
+                <button type="submit">Add Movie</button>
+            </form>
+        </div>
+
+        <!-- Movie List -->
+        <div class="form-container">
+            <h2>Movies</h2>
+            <table id="movies-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Year</th>
+                        <th>Genre</th>
+                        <th>Director</th>
+                        <th>Box Office Earnings</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="movies-list">
+                    <!-- Movie data will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const apiUrl = 'http://43.201.86.41:8000/movies';  // Change to your Flask API URL
+
+        // Fetch and display the movies
+        function fetchMovies() {
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    const moviesList = document.getElementById('movies-list');
+                    moviesList.innerHTML = '';  // Clear current list
+                    data.forEach(movie => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${movie.movie_id}</td>
+                            <td>${movie.movie_title}</td>
+                            <td>${movie.release_year}</td>
+                            <td>${movie.genre}</td>
+                            <td>${movie.director}</td>
+                            <td>${movie.box_office_earnings}</td>
+                            <td><button class="delete-button" onclick="deleteMovie(${movie.movie_id})">Delete</button></td>
+                        `;
+                        moviesList.appendChild(row);
+                    });
+                })
+                .catch(error => console.error('Error fetching movies:', error));
+        }
+
+        // Add a new movie
+        document.getElementById('add-movie-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const newMovie = {
+                movie_title: document.getElementById('movie_title').value,
+                release_year: document.getElementById('release_year').value,
+                genre: document.getElementById('genre').value,
+                director: document.getElementById('director').value,
+                box_office_earnings: document.getElementById('box_office_earnings').value
+            };
+
+            fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(newMovie)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    fetchMovies();  // Refresh the movie list
+                })
+                .catch(error => console.error('Error adding movie:', error));
+        });
+
+        // Delete a movie
+        function deleteMovie(movieId) {
+            fetch(`${apiUrl}/${movieId}`, {
+                method: 'DELETE'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    fetchMovies();  // Refresh the movie list
+                })
+                .catch(error => console.error('Error deleting movie:', error));
+        }
+
+        // Initial fetch of movies
+        fetchMovies();
+    </script>
+</body>
+
+</html>
