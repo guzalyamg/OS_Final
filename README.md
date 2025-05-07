@@ -27,6 +27,7 @@ python3 app.py
 
 ### 4. Database setup
 i have created postgres database from terminal
+'''
 postgres=> \d movies
                                              Table "public.movies"
        Column        |          Type          | Collation | Nullable |                 Default
@@ -38,7 +39,8 @@ postgres=> \d movies
  director            | character varying(255) |           |          |
  box_office_earnings | bigint                 |           |          |
 Indexes:
-    "movies_pkey" PRIMARY KEY, btree (movie_id)
+    "movies_pkey" PRIMARY KEY, btree (movie_id)'''
+    
 ### 5. seting up EC2 Python Backend
 Launched an EC2 instance Ubuntu
 Installed Python and Flask w/ the codes below:
